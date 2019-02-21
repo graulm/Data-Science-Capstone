@@ -26,6 +26,7 @@ library(dplyr)
 library(tokenizers)
 library(RWeka)
 library(ggplot2)
+library(formattable)
 set.seed(201902)
 
 ####################################################################
@@ -44,6 +45,9 @@ file <- readLines(incon, encoding="UTF-8", skipNul=TRUE)
 data_blogs <- file[rbinom(length(file), 1, 0.01) == 1]
 close(incon)
 len_blogs <- length(file)
+size_blogs <- object.size(file)
+max_line_blogs <- max(nchar(file))
+avg_line_blogs <- mean(nchar(file))
 len_blogs_sample <- length(data_blogs)
 len_blogs; len_blogs_sample; len_blogs_sample/len_blogs
 
@@ -53,6 +57,9 @@ file <- readLines(incon, encoding="UTF-8", skipNul=TRUE)
 data_news <- file[rbinom(length(file), 1, 0.01) == 1]
 close(incon)
 len_news <- length(file)
+size_news <- object.size(file)
+max_line_news <- max(nchar(file))
+avg_line_news <- mean(nchar(file))
 len_news_sample <- length(data_news)
 len_news; len_news_sample; len_news_sample/len_news
 
@@ -62,11 +69,33 @@ file <- readLines(incon, encoding="UTF-8", skipNul=TRUE)
 data_twitter <- file[rbinom(length(file), 1, 0.005) == 1]
 close(incon)
 len_twitter <- length(file)
+size_twitter <- object.size(file)
+max_line_twitter <- max(nchar(file))
+avg_line_twitter <- mean(nchar(file))
 len_twitter_sample <- length(data_twitter)
 len_twitter; len_twitter_sample; len_twitter_sample/len_twitter
 
 # Now remove the temp file to reselase memory
 rm(file)
+
+# Basic metrics about the files
+data_metrics <- data.frame(file_name = c("en_US.blogs.txt","en_US.news.txt","en_US.twitter.txt"),
+                         size = c(format(size_blogs, units = "auto"), 
+                                  format(size_news, units = "auto"), 
+                                  format(size_twitter, units = "auto")),
+                         lines = c(format(len_blogs, big.mark=","),
+                                   format(len_news, big.mark=","),
+                                   format(len_twitter, big.mark=",")),
+                         Average_line_length = c(round(avg_line_blogs,0), 
+                                                 round(avg_line_news,0), 
+                                                 round(avg_line_twitter,0)),
+                         max_line_length = c(format(max_line_blogs, big.mark=","), 
+                                             format(max_line_news, big.mark=","), 
+                                             format(max_line_twitter, big.mark=","))
+                         )
+# summary table
+colnames(data_metrics) <- c('File Name', 'File Size', 'Number of Lines', 'Average Length of Lines', 'Maimun Length of a line') 
+formattable(data_metrics)
 
 ####################################################################
 # TRANSFORMATION
@@ -202,7 +231,7 @@ three_dtm_plot <- subset(three_dtm_freq_df, frequency > 10)
 ggplot(three_dtm_plot, aes(x=reorder(word, frequency), y=frequency)) +
         geom_bar(stat = "identity") +  coord_flip() +
         theme(legend.title=element_blank()) +
-        xlab("2-Gram") + ylab("Frequency") +
+        xlab("3-Gram") + ylab("Frequency") +
         labs(title = "Frequency of 3-Grams > 10")
 
 
