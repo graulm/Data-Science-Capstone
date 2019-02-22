@@ -18,6 +18,11 @@ This document shows the milestone report for week #2 where I will:
 - Perform data exploration to undestand the data.    
 - Profile the data file to identify basic characteriscti of the data.  
 - Provide a inital plan to build the prediction text model.  
+.    
+.    
+For detail about the code, here is the link to the GitHub repo: <https://github.com/graulm/Data-Science-Capstone>
+.  
+.  
   
 ## Library and Data  
   
@@ -98,12 +103,12 @@ formattable(data_metrics)
 ## Data Transformation
 
 On this section I will prepare the data to make it ready for the prediction text model.  
-To do that:
-- Ensure the data is all ASCII.
-- The text will be all in lowecase.
-- Digits, puntuation, stopwords, white spaces will be removed.
-- And the text will be transfomred to its stem form.    
-    
+To do that:  
+- Ensure the data is all ASCII.  
+- The text will be all in lowecase.  
+- Digits, puntuation, stopwords, white spaces will be removed.  
+- And the text will be transfomred to its stem form.      
+     
 ```{r data_transformation, warning=FALSE, comment="", cache=TRUE}
 # Make sure all characters are ASCII
 data_blogs <- iconv(data_blogs,  to="ASCII", sub="")
@@ -168,7 +173,7 @@ ggplot(one_dtm_plot, aes(x=reorder(word, frequency), y=frequency)) +
 two_gramTokenizer <- function(x) NGramTokenizer(x=x, control=Weka_control(min = 2, max = 2))
 two_dtm <- DocumentTermMatrix(my_corpus, control = list(tokenize = two_gramTokenizer))
 # Because the matrix is too much sparse, let's find something that is not so much
-two_dtm_sparse <- removeSparseTerms(two_dtm, sparse=0.999)
+two_dtm_sparse <- removeSparseTerms(two_dtm, sparse=0.9997)
 
 two_dtm_freq <- sort(colSums(as.matrix(two_dtm_sparse)),decreasing = TRUE)
 two_dtm_freq_df <- data.frame(word = names(two_dtm_freq), frequency = two_dtm_freq)
@@ -201,10 +206,40 @@ ggplot(three_dtm_plot, aes(x=reorder(word, frequency), y=frequency)) +
         xlab("3-Gram") + ylab("Frequency") +
         labs(title = "Frequency of 3-Grams > 10")
 ```  
+    
   
+## Calcualte of the size of the data-file to be used in the text predition model   
   
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+This section calculate the size fo the object that hold the ngrams that will be used for the model.
+Unfortunately there are RAM constraints due the small side of the computer where I'm buiding this project. And based on the guideline of the project, we should assume we will have some RAM constraints on the devide where the model will be running on. So, for those reasons, I'm showing here the size of the ngrams object with some percentages of the corpus:  
+
+``` {r ngrams_size, warning=FALSE, comment="", cache=TRUE}
+# Basic metrics for the bigrams dataframe
+bigrams_metrics <- data.frame(file_name = c("Bigrams 50%","Bigrams 75%","Bigrams 90%","Bigrams 100%"),
+  size = c(format(object.size(two_dtm_freq_df[1:round(nrow(two_dtm_freq_df)*0.5),]), units="auto"), 
+           format(object.size(two_dtm_freq_df[1:round(nrow(two_dtm_freq_df)*0.75),]),units="auto"), 
+           format(object.size(two_dtm_freq_df[1:round(nrow(two_dtm_freq_df)*0.90),]),units="auto"), 
+           format(object.size(two_dtm_freq_df[1:round(nrow(two_dtm_freq_df)*1.0),]), units="auto")
+          )
+                             )
+
+# summary table
+colnames(bigrams_metrics) <- c('Bigrams Data', 'File Size') 
+formattable(bigrams_metrics)
+```
   
-.  
-.  
+## Strategy to build the Text prediction Model   
+  
+Now that I have clear understanding of the data, I have trasnformed it into a clean Corpus, generated the ngrams, and calculated the pontial size of the object to be used in the model, follows is the first draft of the strategy on how the text predtion model will work:  
+    
+1- Build the Bigrams with a Corpus Tranformed (removed whitespace, stemming, removed stopwords, etc.).  
+2- For quick access build a dictionary with the Bigrams.  
+3- Based on the size contraints, use at least 90% coverage of the Bigrams object.  
+4- When the user enters a word, try to find the word in the dictionary.  
+5- If the word exists, suggest the word that follows based on the Bigrams dataframe.     
+6- If the word does not exist, suggest a word that exists in the Bigrams dataframe selected randomly.   
+    
+.    
+.    
+.    
 .  

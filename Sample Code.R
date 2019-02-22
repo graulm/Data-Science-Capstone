@@ -138,8 +138,6 @@ my_corpus <- tm_map(my_corpus, PlainTextDocument)
 # Explore the corpus
 ####################################################################
 
-### !!! THIS SECTION WAS NOT EXECUTED !!!!! ###
-
 # Create the "term-document-matrix"      
 dtm <- DocumentTermMatrix(my_corpus) 
 dtm
@@ -151,7 +149,7 @@ tdm <- TermDocumentMatrix(my_corpus)
 tdm
 dim(tdm)
 inspect(tdm[1:5, 1:4])
-inspect(tdm[5000:5015, 9150:9154])
+inspect(tdm[8000:8005, 1:4])
 
 # Retrive the top 100 words 
 dtm_top <- dtm[,findFreqTerms(x = dtm, lowfreq=100, highfreq=Inf)]
@@ -196,12 +194,13 @@ two_gramTokenizer <- function(x) NGramTokenizer(x=x, control=Weka_control(min = 
 two_dtm <- DocumentTermMatrix(my_corpus, control = list(tokenize = two_gramTokenizer))
 
 dim(two_dtm)
-two_dtm_sparse <- removeSparseTerms(two_dtm, sparse=0.99)
+two_dtm_sparse <- removeSparseTerms(two_dtm, sparse=0.99999)
 dim(two_dtm_sparse)
 
 two_dtm_freq <- sort(colSums(as.matrix(two_dtm_sparse)),decreasing = TRUE)
 two_dtm_freq_df <- data.frame(word = names(two_dtm_freq), frequency = two_dtm_freq)
 head(two_dtm_freq_df, 10)
+dim(two_dtm_freq_df)
 
 two_dtm_plot <- subset(two_dtm_freq_df, frequency > 100)
 
@@ -219,12 +218,14 @@ three_gramTokenizer <- function(x) NGramTokenizer(x=x, control=Weka_control(min 
 three_dtm <- DocumentTermMatrix(my_corpus, control = list(tokenize = three_gramTokenizer))
 
 dim(three_dtm)
-three_dtm_sparse <- removeSparseTerms(three_dtm, sparse=0.9995)
+three_dtm_sparse <- removeSparseTerms(three_dtm, sparse=0.9998)
 dim(three_dtm_sparse)
+
 
 three_dtm_freq <- sort(colSums(as.matrix(three_dtm_sparse)),decreasing = TRUE)
 three_dtm_freq_df <- data.frame(word = names(three_dtm_freq), frequency = three_dtm_freq)
 head(three_dtm_freq_df, 10)
+dim(three_dtm_freq_df)
 
 three_dtm_plot <- subset(three_dtm_freq_df, frequency > 10)
 
@@ -237,9 +238,45 @@ ggplot(three_dtm_plot, aes(x=reorder(word, frequency), y=frequency)) +
 
 
 ####################################################################
+# Calculate the size of the object using 50% or 90% of the ngrams
+####################################################################
+two_gramTokenizer <- function(x) NGramTokenizer(x=x, control=Weka_control(min = 2, max = 2))
+two_dtm <- DocumentTermMatrix(my_corpus, control = list(tokenize = two_gramTokenizer))
+
+dim(two_dtm)
+two_dtm_sparse <- removeSparseTerms(two_dtm, sparse=0.9997)
+dim(two_dtm_sparse)
+
+two_dtm_freq <- sort(colSums(as.matrix(two_dtm_sparse)),decreasing = TRUE)
+length(two_dtm_freq)
+two_dtm_freq_df <- data.frame(word = names(two_dtm_freq), frequency = two_dtm_freq)
+head(two_dtm_freq_df, 10)
+dim(two_dtm_freq_df)
+object.size(two_dtm_freq_df)
+
+# Basic metrics for the bigrams dataframe
+bigrams_metrics <- data.frame(file_name = c("Bigrams 50%","Bigrams 75%","Bigrams 90%","Bigrams 100%"),
+                           size = c(format(object.size(two_dtm_freq_df[1:round(nrow(two_dtm_freq_df)*0.5),]), units="auto"), 
+                                    format(object.size(two_dtm_freq_df[1:round(nrow(two_dtm_freq_df)*0.75),]),units="auto"), 
+                                    format(object.size(two_dtm_freq_df[1:round(nrow(two_dtm_freq_df)*0.90),]),units="auto"), 
+                                    format(object.size(two_dtm_freq_df[1:round(nrow(two_dtm_freq_df)*1.0),]), units="auto")
+                                    )
+                                   )
+
+# summary table
+colnames(bigrams_metrics) <- c('Bigrams Data', 'File Size') 
+formattable(bigrams_metrics)
+
+
+
 ####################################################################
 ####################################################################
 ####################################################################
+####################################################################
+####################################################################
+####################################################################
+
+
 
 # Count the number of lines
 length(data_blogs); length(data_news); length(data_twitter)
