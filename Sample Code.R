@@ -271,6 +271,21 @@ formattable(bigrams_metrics)
 
 ####################################################################
 ####################################################################
+
+
+my_corpus_df <- data.frame(text=unlist(sapply(my_corpus, `[`, "content")),stringsAsFactors=F)
+
+qq <- trigrams_data %>% filter_(~word1 == "about", ~word2 == "this")
+woord <- trigrams_data %>% filter_(~word1 == "about", ~word2 == "this") 
+woord <- trigrams_data %>% filter_(~word1 == "imag", ~word2 == "will") 
+woord <- sample_n(woord, 1, weight = n) %>% .[["word3"]]
+
+%>% sample_n(1, weight = n)
+
+%>%
+        .[["word3"]]
+
+
 ####################################################################
 ####################################################################
 ####################################################################
