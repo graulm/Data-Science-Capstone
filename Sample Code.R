@@ -34,7 +34,8 @@ set.seed(201902)
 ####################################################################
 #   Note that due the size of the data files (200MG, 196MG, and 159MG) 
 #   I will use a smaller size of the files selecting lines randomly (using rbiom) 
-file_path  <- "C:/Users/raulm/Documents/John Hopkins University/#10 Data Science Capstone/Coursera-SwiftKey/final/en_US/"
+#file_path  <- "C:/Users/raulm/Documents/John Hopkins University/#10 Data Science Capstone/Coursera-SwiftKey/final/en_US/"
+file_path  <- "C:/Users/rlmartinez/Documents/John Hopkins University/#10 Data Science Capstone/Coursera-SwiftKey/final/en_US/"
 file_blogs <- "en_US.blogs.txt"
 file_news  <- "en_US.news.txt"
 file_twitter <- "en_US.twitter.txt"
@@ -42,7 +43,7 @@ file_twitter <- "en_US.twitter.txt"
 # Load the "blogs" data file
 incon <- file(paste(file_path, file_blogs ,sep=""),"r")
 file <- readLines(incon, encoding="UTF-8", skipNul=TRUE)
-data_blogs <- file[rbinom(length(file), 1, 0.01) == 1]
+data_blogs <- file[rbinom(length(file), 1, 0.1) == 1]
 close(incon)
 len_blogs <- length(file)
 size_blogs <- object.size(file)
@@ -54,7 +55,7 @@ len_blogs; len_blogs_sample; len_blogs_sample/len_blogs
 # Load the "news" data file
 incon <- file(paste(file_path, file_news ,sep=""),"rb")
 file <- readLines(incon, encoding="UTF-8", skipNul=TRUE)
-data_news <- file[rbinom(length(file), 1, 0.01) == 1]
+data_news <- file[rbinom(length(file), 1, 0.1) == 1]
 close(incon)
 len_news <- length(file)
 size_news <- object.size(file)
@@ -66,7 +67,7 @@ len_news; len_news_sample; len_news_sample/len_news
 # Load the "twitter" data file
 incon <- file(paste(file_path, file_twitter ,sep=""),"r")
 file <- readLines(incon, encoding="UTF-8", skipNul=TRUE)
-data_twitter <- file[rbinom(length(file), 1, 0.005) == 1]
+data_twitter <- file[rbinom(length(file), 1, 0.05) == 1]
 close(incon)
 len_twitter <- length(file)
 size_twitter <- object.size(file)
@@ -130,7 +131,7 @@ my_corpus <- tm_map(my_corpus, tolower)
 my_corpus <- tm_map(my_corpus, removePunctuation)
 my_corpus <- tm_map(my_corpus, removeWords, stopwords("english"))
 my_corpus <- tm_map(my_corpus, stripWhitespace)
-my_corpus <- tm_map(my_corpus, stemDocument)
+#my_corpus <- tm_map(my_corpus, stemDocument)
 my_corpus <- tm_map(my_corpus, PlainTextDocument)
 
 
@@ -280,10 +281,15 @@ woord <- trigrams_data %>% filter_(~word1 == "about", ~word2 == "this")
 woord <- trigrams_data %>% filter_(~word1 == "imag", ~word2 == "will") 
 woord <- sample_n(woord, 1, weight = n) %>% .[["word3"]]
 
-%>% sample_n(1, weight = n)
+trigrams_data %>% filter_(~word1 == "id", ~word2 == "give")
+trigrams_data %>% filter_(~word1 == "id", ~word2 == "give") %>% .[["n"]]
+bigrams_data %>% filter_(~word1 == "id", ~word2 == "give") %>% .[["n"]]
+bigrams_data %>% filter_(~word1 == "id", ~word2 == "give")
 
-%>%
-        .[["word3"]]
+bigrams_data %>% filter_(~word1 == "id")
+bigrams_data %>% filter_(~word1 == "id", ~word2 == "give")
+
+return_third_word("idx", "idx")
 
 
 ####################################################################
